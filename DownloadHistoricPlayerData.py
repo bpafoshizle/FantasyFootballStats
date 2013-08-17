@@ -23,6 +23,26 @@ def getPlayerGameLogData():
 	positionUrlList = getPositionUrlsFromYahooStatsPage()
 	positionPages = getPositionPlayerListingPages(positionUrlList)
 	playerUrls = getPlayerUrlsFromPositionPages(positionPages)
+	playerGamelogs = getAllPlayerGameLogs(playerUrls)
+
+
+def getAllPlayerGameLogs(playerUrls):
+	for playerDict in playerUrls:
+			playerYears = getPlayerYears(playerDict['playerUrl'])
+			addPlayerYearGamelogPages(playerDict, playerYears)
+
+def getPlayerYears(playerBaseUrl):
+	""" Function to extract all the relevant years
+		that a player played based on what is in their 
+		base gamelog page. Returns a list of years.
+	"""
+
+def addPlayerGameLogPages(playerDict, playerYears)
+	""" Function to loop through and grab the HTML for
+		each year page of gamelogs for the passed-in 
+		year list. Add this HTML in a page list or dict data 
+		structure.
+	"""
 
 
 def getPlayerUrlsFromPositionPages(positionPages):
