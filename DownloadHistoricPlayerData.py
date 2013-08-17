@@ -2,6 +2,7 @@ import sys
 import urllib2
 import urlparse
 import re
+from datetime import datetime
 
 
 baseYahooSportsUrl = 'http://sports.yahoo.com'
@@ -22,28 +23,77 @@ def getPlayerGameLogData():
 
 	positionUrlList = getPositionUrlsFromYahooStatsPage()
 	positionPages = getPositionPlayerListingPages(positionUrlList)
-	playerUrls = getPlayerUrlsFromPositionPages(positionPages)
-	playerGamelogs = getAllPlayerGameLogs(playerUrls)
+	players = getPlayerUrlsFromPositionPages(positionPages)
+	players = getAllPlayerGameLogs(players)
+	#print dir(players)
+	writePlayerGameLogsToFile(players)
 
 
-def getAllPlayerGameLogs(playerUrls):
-	for playerDict in playerUrls:
-			playerYears = getPlayerYears(playerDict['playerUrl'])
-			addPlayerYearGamelogPages(playerDict, playerYears)
 
-def getPlayerYears(playerBaseUrl):
+def writePlayerGameLogsToFile(players):
+	for playerDict in players:
+		#print dir(playerDict)
+		for url, html in playerDict['gamelogYearPages'].iteritems():
+			#http://sports.yahoo.com/nfl/players/7200/gamelog?year=2012	
+			print url
+			year = re.findall(r'year=(\d\d\d\d)', url)[0]
+			#print year
+			playerPos = playerDict['playerPos']
+			playerName = playerDict['playerName']
+			fileName = '%s_%s_%s.html' % (playerPos, playerName, year)
+		
+			outFile = open('playerGamelogs/%s' % fileName, 'w')
+			outFile.write(html)
+			outFile.close()
+						
+
+
+def getAllPlayerGameLogs(players):
+	""" Function to take a list of all player
+		dictionaries and loop through them getting the year
+	"""
+	for playerDict in players:
+		playerDict = getPlayerYears(playerDict)
+		playerDict = addPlayerYearGamelogPages(playerDict)
+
+	return players
+
+def getPlayerYears(playerDict):
 	""" Function to extract all the relevant years
 		that a player played based on what is in their 
-		base gamelog page. Returns a list of years.
+		base gamelog page. Returns a list of year Urls with the player dict
 	"""
+	currentYear = str(datetime.now().year-1)
+	print "Opening %s" % playerDict['playerUrl']
+	response = urllib2.urlopen(playerDict['playerUrl'])
+	pageHtml = response.read()
+	response.close()
+	#playerBaseGameLog = open('/Users/bpafoshizle/github/local/FantasyFootballStats/%s.html' % playerDict['playerName'], 'w')
+	#playerBaseGameLog.write(pageHtml)
+	yearLinks = re.finditer(r'<a href="(/nfl/players/\d+/gamelog\?year=\d\d\d\d)">\d\d\d\d</a>', pageHtml)
+	playerDict['gameLogYearUrls'] = ['%s?year=%s' % (playerDict['playerUrl'], currentYear)]
+	for yearLink in yearLinks:
+		#print yearLink.group(1)
+		playerDict['gameLogYearUrls'].append('%s%s' % (baseYahooSportsUrl, yearLink.group(1)))
+		
+	print playerDict['gameLogYearUrls']
 
-def addPlayerGameLogPages(playerDict, playerYears)
+	return playerDict
+
+	
+def addPlayerYearGamelogPages(playerDict):
 	""" Function to loop through and grab the HTML for
 		each year page of gamelogs for the passed-in 
 		year list. Add this HTML in a page list or dict data 
 		structure.
 	"""
+	playerDict['gamelogYearPages'] = {}
+	for gameLogYearUrl in playerDict['gameLogYearUrls']:
+		response = urllib2.urlopen(gameLogYearUrl)
+		playerDict['gamelogYearPages'][gameLogYearUrl] = response.read()
+		response.close()
 
+	return playerDict
 
 def getPlayerUrlsFromPositionPages(positionPages):
 	""" Function to extract and build all the URLs for
@@ -54,9 +104,11 @@ def getPlayerUrlsFromPositionPages(positionPages):
 		playerPaths = re.finditer(r'<a href="(/nfl/players/\d+)">(.*?)</a>', value)
 		for playerPath in playerPaths:
 			playerDictList.append({'playerUrl':baseYahooSportsUrl + playerPath.group(1) + '/gamelog', 'playerName':playerPath.group(2), 'playerPos':key})
+			break
+		break
 		
 	
-	print playerDictList
+	return playerDictList
 
 
 
@@ -70,6 +122,7 @@ def getPositionUrlsFromYahooStatsPage():
 	yahooSportsNFLStatsUrl = yahooSportsNFLUrl + 'stats/'
 	response = urllib2.urlopen(yahooSportsNFLStatsUrl)
 	pageHtml = response.read()
+	response.close()
 	#statsPageFile = open('C:\Users\MILLERBARR\Documents\GitHub\FantasyFootballStats\statsPage.html', 'w')
 	#statsPageFile.write(pageHtml)
 	#statsPageFile.close()
@@ -89,10 +142,12 @@ def getPositionPlayerListingPages(positionUrlList):
 		positionName = extractPositionNameFromUrl(positionUrl)
 		response = urllib2.urlopen(positionUrl)
 		pageHtml = response.read()
+		response.close()
 		positionPages[positionName] = pageHtml
 		#positionPageFile = open('C:\Users\MILLERBARR\Documents\GitHub\FantasyFootballStats\\\\' + positionName + 'Page.html', 'w')
 		#positionPageFile.write(pageHtml)
 		#positionPageFile.close()
+		break
 
 	return positionPages
 	
