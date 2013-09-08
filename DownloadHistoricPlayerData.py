@@ -2,6 +2,7 @@ import sys
 import urllib2
 import urlparse
 import re
+import time
 from datetime import datetime
 
 
@@ -21,42 +22,66 @@ def getPlayerGameLogData():
 		every position available on sports.yahoo.com
 	"""
 
+	# Step 1: Get a list of all position URLs from the yahoo stats 
+	# main page.
 	positionUrlList = getPositionUrlsFromYahooStatsPage()
+	
+	# Step 2: Get a list of all pages for each URL gathered in step 1
 	positionPages = getPositionPlayerListingPages(positionUrlList)
+
+	# Step 3: Get a list of all player URLs from each position page
+	# gathered in step 2.
 	players = getPlayerUrlsFromPositionPages(positionPages)
+	
+	# Step 4: Get a list of the game log (individual game data)
+	# for each year that each player has played.
 	players = getAllPlayerGameLogs(players)
 	#print dir(players)
 	writePlayerGameLogsToFile(players)
 
 
 
-def writePlayerGameLogsToFile(players):
-	for playerDict in players:
-		#print dir(playerDict)
-		for url, html in playerDict['gamelogYearPages'].iteritems():
-			#http://sports.yahoo.com/nfl/players/7200/gamelog?year=2012	
-			print url
-			year = re.findall(r'year=(\d\d\d\d)', url)[0]
-			#print year
-			playerPos = playerDict['playerPos']
-			playerName = playerDict['playerName']
-			fileName = '%s_%s_%s.html' % (playerPos, playerName, year)
-		
-			outFile = open('playerGamelogs/%s' % fileName, 'w')
-			outFile.write(html)
-			outFile.close()
+def writePlayerGameLogToFile(playerDict):
+	for url, html in playerDict['gamelogYearPages'].iteritems():
+		#http://sports.yahoo.com/nfl/players/7200/gamelog?year=2012	
+		print url
+		year = re.findall(r'year=(\d\d\d\d)', url)[0]
+		#print year
+		playerPos = playerDict['playerPos']
+		playerName = playerDict['playerName']
+		fileName = '%s_%s_%s.html' % (playerPos, playerName, year)
+	
+		outFile = open('playerGamelogs/%s' % fileName, 'w')
+		outFile.write(html)
+		outFile.close()
 						
-
 
 def getAllPlayerGameLogs(players):
 	""" Function to take a list of all player
 		dictionaries and loop through them getting the year
 	"""
-	for playerDict in players:
+	# put a list comprehension here to 
+	for playerDict in [player for player in players if not(havePlayer(player))]:
 		playerDict = getPlayerYears(playerDict)
 		playerDict = addPlayerYearGamelogPages(playerDict)
+		writePlayerGameLogToFile(playerDict)
+		logHavePlayer(playerDict)
+
 
 	return players
+
+
+def havePlayer(player):
+	""" Check the player against our database to see if 
+	 	we have this player yet
+	"""
+	player['playerName']
+
+def logHavePlayer(playerDict):
+	""" Function will log an update to the sqlLite db
+		indicating that we have downloaded all the logs
+		for a given player.
+	"""
 
 def getPlayerYears(playerDict):
 	""" Function to extract all the relevant years
@@ -78,6 +103,8 @@ def getPlayerYears(playerDict):
 		
 	print playerDict['gameLogYearUrls']
 
+	# Sleep for 3 seconds after each request
+	time.sleep(3)
 	return playerDict
 
 	
@@ -92,6 +119,7 @@ def addPlayerYearGamelogPages(playerDict):
 		response = urllib2.urlopen(gameLogYearUrl)
 		playerDict['gamelogYearPages'][gameLogYearUrl] = response.read()
 		response.close()
+		time.sleep(3)
 
 	return playerDict
 
@@ -104,6 +132,7 @@ def getPlayerUrlsFromPositionPages(positionPages):
 		playerPaths = re.finditer(r'<a href="(/nfl/players/\d+)">(.*?)</a>', value)
 		for playerPath in playerPaths:
 			playerDictList.append({'playerUrl':baseYahooSportsUrl + playerPath.group(1) + '/gamelog', 'playerName':playerPath.group(2), 'playerPos':key})
+			logPlayer(playerPath.group(1), playerPath.group(2), key) # log to sqlLite
 			break
 		break
 		
@@ -111,7 +140,11 @@ def getPlayerUrlsFromPositionPages(positionPages):
 	return playerDictList
 
 
-
+def logPlayer(playerId, playerName, position):
+	""" Method to initially add a player in to our SqlLite database
+		We will add the player if we don't already have it
+	"""
+	
 
 def getPositionUrlsFromYahooStatsPage():
 	""" Get the initial Stats Page that will allow us to 
