@@ -1,0 +1,14 @@
+The goal of this project is to create a wholistic solution for
+fantasy sports to enable data driven decision making for winning 
+Fantasy football leagues. 
+
+The project will contain:
+
+1)Yahoo fantasy bot.
+2)Pro-Football reference bot.
+3)ESPN bot.
+4)MySQL db schemas for storing data.
+5)ETL scripts to load the raw downloaded data into the MySQL schema.
+6)Statistical packages for making predictions based on the data. Will possibly use rapid miner and R.
+
+Bots will enable the extraction of data to CSV and then the automation of league actions based on data analysis for automatic decision making.
