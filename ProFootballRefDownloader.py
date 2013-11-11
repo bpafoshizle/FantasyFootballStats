@@ -16,6 +16,7 @@ class ProFootballRefDownloader:
 		self.baseUrl = "http://www.pro-football-reference.com/"
 		self.yearPage = None
 		self.yearUrls = None
+		self.playerUrls = None
 		self.numYears = None
 
 
@@ -29,7 +30,7 @@ class ProFootballRefDownloader:
 		self.yearPage = response.read()
 		return self.yearPage
 	
-	def getYearUrlsFromYearsPage(self, numYears):
+	def getYearUrlsFromYearsPage(self, numYears=1):
 		""" Function that gets a specified number of years in descending 
 		order from the years page. """
 		if(self.yearPage is None):
@@ -41,4 +42,23 @@ class ProFootballRefDownloader:
 						 itertools.islice(re.finditer(r'<a href="/(years/\d+/)">NFL</a>', self.yearPage), numYears)]
 				  		)
 		return self.yearUrls
- 
+
+	def getFantasyPlayerUrlsByYear(self, numPlayers=1):
+		""" Function that will get a list of players for all
+		the years specified in the yearUrls page. Default is to 
+		only download the top player for each year specified. """
+		if(self.yearUrls is None):
+			self.getYearUrlsFromYearsPage()
+			print self.yearUrls
+			
+		
+		response = urllib2.urlopen(self.yearUrls[0] + "fantasy.htm")
+		fantasyYearPage = response.read()
+		self.playerUrls = ([self.baseUrl + m.group(1)
+						   for m in
+						   								 #<a href="/players/C/CousKi00.htm">Kirk Cousins</a>
+						   itertools.islice(re.finditer(r'<a href="/(players/[A-Za-z]+/\w+.htm)">\w+ \w+</a>', fantasyYearPage), 
+						   numPlayers)]
+						  )
+
+		return self.playerUrls
