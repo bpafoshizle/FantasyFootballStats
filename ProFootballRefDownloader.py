@@ -17,6 +17,7 @@ class ProFootballRefDownloader:
 		self.yearPage = None
 		self.yearUrls = None
 		self.playerUrls = None
+		self.playerGamelogUrls = None
 		self.numYears = None
 
 
@@ -49,16 +50,53 @@ class ProFootballRefDownloader:
 		only download the top player for each year specified. """
 		if(self.yearUrls is None):
 			self.getYearUrlsFromYearsPage()
-			print self.yearUrls
 			
 		
 		response = urllib2.urlopen(self.yearUrls[0] + "fantasy.htm")
 		fantasyYearPage = response.read()
 		self.playerUrls = ([self.baseUrl + m.group(1)
 						   for m in
-						   								 #<a href="/players/C/CousKi00.htm">Kirk Cousins</a>
 						   itertools.islice(re.finditer(r'<a href="/(players/[A-Za-z]+/\w+.htm)">\w+ \w+</a>', fantasyYearPage), 
 						   numPlayers)]
 						  )
 
 		return self.playerUrls
+
+	def getPlayerGamelogUrls(self, numYears=1, numPlayers=1):
+		""" Function that will loop through the player URLs stored
+		in self.playerUrls and get numYears gamelog URLs depening
+		on what that player has available. Returns the list of valid 
+		gamelog URLs for each player """
+		
+		if(self.numYears is not None):
+			numYears = self.numYears
+
+		if(self.playerUrls is None):
+			self.getFantasyPlayerUrlsByYear(numPlayers=numPlayers)
+
+		self.playerGamelogUrls = []
+
+		for url in self.playerUrls:
+			response = urllib2.urlopen(url)
+			playerPage = response.read()
+			self.playerGamelogUrls.extend (
+										   self.sortGamelogList(
+										   	[
+												(self.baseUrl + m.group(1), m.group(2))
+									  			for m in
+									  				re.finditer(r'<a href="/(players/[A-Za-z]+/\w+/gamelog/\d\d\d\d/)">(\d\d\d\d)</a>', playerPage)
+									  	   	]
+										   )[0:numYears]
+									 	  )
+		return self.playerGamelogUrls
+
+	def sortGamelogList(self, gamelogList, Descending=True):
+		"""Function that takes a list of lists. The inner list
+		consists of one gamelog URL plus the year to facilitate sorting.
+		Returns a list of just the URLs sorted desc"""
+
+		# Sort the list, but convert from set back to list first as a cool hack to remove duplicates
+		return sorted(list(set(gamelogList)), key=lambda gamelogTuple : gamelogTuple[1], reverse=Descending) # sort by the second element: year
+
+	
+
