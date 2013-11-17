@@ -2,6 +2,7 @@ import urllib2
 import urlparse
 import itertools
 import re
+from xml.dom.minidom import parseString
 
 
 class ProFootballRefDownloader:
@@ -97,6 +98,20 @@ class ProFootballRefDownloader:
 
 		# Sort the list, but convert from set back to list first as a cool hack to remove duplicates
 		return sorted(list(set(gamelogList)), key=lambda gamelogTuple : gamelogTuple[1], reverse=Descending) # sort by the second element: year
+
+
+	def getPlayerPagesAndExtractStats(self, playerGamelogUrlYearTuples):
+		for urlYearTuple in playerGamelogUrlYearTuples:
+			print urlYearTuple[0]
+			response = urllib2.urlopen(urlYearTuple[0])
+			playerGamelogPage = response.read()
+			print playerGamelogPage
+			self.extractGamelogData(playerGamelogPage)
+
+
+	def extractGamelogData(self, gamelogPage):
+		dom = parseString(gamelogPage)
+		print dom.getElementById("stats")
 
 	
 
