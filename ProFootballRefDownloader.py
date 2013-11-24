@@ -2,8 +2,8 @@ import urllib2
 import urlparse
 import itertools
 import re
-from xml.dom.minidom import parseString
-
+#from xml.dom.minidom import parseString
+from bs4 import BeautifulSoup
 
 class ProFootballRefDownloader:
 	""" Class the represents a bot to manipulate the 
@@ -102,16 +102,18 @@ class ProFootballRefDownloader:
 
 	def getPlayerPagesAndExtractStats(self, playerGamelogUrlYearTuples):
 		for urlYearTuple in playerGamelogUrlYearTuples:
-			print urlYearTuple[0]
+			#print urlYearTuple[0]
 			response = urllib2.urlopen(urlYearTuple[0])
 			playerGamelogPage = response.read()
-			print playerGamelogPage
+			#print playerGamelogPage
 			self.extractGamelogData(playerGamelogPage)
 
 
 	def extractGamelogData(self, gamelogPage):
-		dom = parseString(gamelogPage)
-		print dom.getElementById("stats")
+		soup = BeautifulSoup(gamelogPage)
+		tableList = soup.find_all("table", id="stats", limit=1)
+		print tableList
+		
 
 	
 
