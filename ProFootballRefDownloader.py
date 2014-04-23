@@ -2,7 +2,7 @@ import urllib2
 import urlparse
 import itertools
 import re
-
+	
 
 class ProFootballRefDownloader:
 	""" Class the represents a bot to manipulate the 
@@ -40,25 +40,48 @@ class ProFootballRefDownloader:
 		self.yearUrls = ([self.baseUrl + m.group(1) 
 						 for m in 
 						 itertools.islice(re.finditer(r'<a href="/(years/\d+/)">NFL</a>', self.yearPage), numYears)]
-				  		)
+						)
 		return self.yearUrls
 
-	def getFantasyPlayerUrlsByYear(self, numPlayers=1):
+	def getFantasyPlayerUrlsByYear(self, year, numPlayers=1):
 		""" Function that will get a list of players for all
 		the years specified in the yearUrls page. Default is to 
 		only download the top player for each year specified. """
 		if(self.yearUrls is None):
 			self.getYearUrlsFromYearsPage()
-			print self.yearUrls
 			
-		
-		response = urllib2.urlopen(self.yearUrls[0] + "fantasy.htm")
+		yearUrl = [u for u in self.yearUrls if year in u][0]
+		response = urllib2.urlopen(yearUrl + "fantasy.htm")
 		fantasyYearPage = response.read()
 		self.playerUrls = ([self.baseUrl + m.group(1)
 						   for m in
-						   								 #<a href="/players/C/CousKi00.htm">Kirk Cousins</a>
+														 #<a href="/players/C/CousKi00.htm">Kirk Cousins</a>
 						   itertools.islice(re.finditer(r'<a href="/(players/[A-Za-z]+/\w+.htm)">\w+ \w+</a>', fantasyYearPage), 
 						   numPlayers)]
 						  )
 
 		return self.playerUrls
+	
+	def downloadPlayerPagesForYear(self, year):
+		"""Method to download players for a year
+		passed as a parameter."""
+		if(self.playerUrls is None):
+			self.getFantasyPlayerUrlsByYear(year, numPlayers=1000)
+
+		for playerUrl in self.playerUrls:
+			response = urllib2.urlopen(playerUrl)
+			playerPage = response.read()
+			playerName = self.extractPlayerName(playerPage)
+			filePath = './playerPages/' + playerName + '_' + year + '.html'
+			print filePath
+			with open(filePath, 'w') as f:
+				f.write(playerPage)
+
+	def extractPlayerName(self, playerPage):
+		#<meta itemprop="name" content="Drew Brees">
+		#<meta itemprop="name" content="Jamaal Charles">
+		#print playerPage
+		pattern = re.compile(r'<meta itemprop="name" content="(.*)">')
+		result = pattern.search(playerPage)
+		return result.group(1)
+
