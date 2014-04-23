@@ -2,7 +2,12 @@ import urllib2
 import urlparse
 import itertools
 import re
+<<<<<<< HEAD
 	
+=======
+#from xml.dom.minidom import parseString
+from bs4 import BeautifulSoup
+>>>>>>> 8162855eae80c6a1195c93b64c625310f1b51b18
 
 class ProFootballRefDownloader:
 	""" Class the represents a bot to manipulate the 
@@ -17,6 +22,7 @@ class ProFootballRefDownloader:
 		self.yearPage = None
 		self.yearUrls = None
 		self.playerUrls = None
+		self.playerGamelogUrls = None
 		self.numYears = None
 
 
@@ -55,12 +61,16 @@ class ProFootballRefDownloader:
 		fantasyYearPage = response.read()
 		self.playerUrls = ([self.baseUrl + m.group(1)
 						   for m in
+<<<<<<< HEAD
 														 #<a href="/players/C/CousKi00.htm">Kirk Cousins</a>
+=======
+>>>>>>> 8162855eae80c6a1195c93b64c625310f1b51b18
 						   itertools.islice(re.finditer(r'<a href="/(players/[A-Za-z]+/\w+.htm)">\w+ \w+</a>', fantasyYearPage), 
 						   numPlayers)]
 						  )
 
 		return self.playerUrls
+<<<<<<< HEAD
 	
 	def downloadPlayerPagesForYear(self, year):
 		"""Method to download players for a year
@@ -84,4 +94,60 @@ class ProFootballRefDownloader:
 		pattern = re.compile(r'<meta itemprop="name" content="(.*)">')
 		result = pattern.search(playerPage)
 		return result.group(1)
+=======
+
+	def getPlayerGamelogUrls(self, numYears=1, numPlayers=1):
+		""" Function that will loop through the player URLs stored
+		in self.playerUrls and get numYears gamelog URLs depening
+		on what that player has available. Returns the list of valid 
+		gamelog URLs for each player """
+		
+		if(self.numYears is not None):
+			numYears = self.numYears
+
+		if(self.playerUrls is None):
+			self.getFantasyPlayerUrlsByYear(numPlayers=numPlayers)
+
+		self.playerGamelogUrls = []
+
+		for url in self.playerUrls:
+			response = urllib2.urlopen(url)
+			playerPage = response.read()
+			self.playerGamelogUrls.extend (
+										   self.sortGamelogList(
+										   	[
+												(self.baseUrl + m.group(1), m.group(2))
+									  			for m in
+									  				re.finditer(r'<a href="/(players/[A-Za-z]+/\w+/gamelog/\d\d\d\d/)">(\d\d\d\d)</a>', playerPage)
+									  	   	]
+										   )[0:numYears]
+									 	  )
+		return self.playerGamelogUrls
+
+	def sortGamelogList(self, gamelogList, Descending=True):
+		"""Function that takes a list of lists. The inner list
+		consists of one gamelog URL plus the year to facilitate sorting.
+		Returns a list of just the URLs sorted desc"""
+
+		# Sort the list, but convert from set back to list first as a cool hack to remove duplicates
+		return sorted(list(set(gamelogList)), key=lambda gamelogTuple : gamelogTuple[1], reverse=Descending) # sort by the second element: year
+
+
+	def getPlayerPagesAndExtractStats(self, playerGamelogUrlYearTuples):
+		for urlYearTuple in playerGamelogUrlYearTuples:
+			#print urlYearTuple[0]
+			response = urllib2.urlopen(urlYearTuple[0])
+			playerGamelogPage = response.read()
+			#print playerGamelogPage
+			self.extractGamelogData(playerGamelogPage)
+
+
+	def extractGamelogData(self, gamelogPage):
+		soup = BeautifulSoup(gamelogPage)
+		tableList = soup.find_all("table", id="stats", limit=1)
+		print tableList
+		
+
+	
+>>>>>>> 8162855eae80c6a1195c93b64c625310f1b51b18
 
