@@ -1,13 +1,8 @@
 import urllib2
 import urlparse
 import itertools
-import re
-<<<<<<< HEAD
-	
-=======
-#from xml.dom.minidom import parseString
+import re	
 from bs4 import BeautifulSoup
->>>>>>> 8162855eae80c6a1195c93b64c625310f1b51b18
 
 class ProFootballRefDownloader:
 	""" Class the represents a bot to manipulate the 
@@ -61,16 +56,12 @@ class ProFootballRefDownloader:
 		fantasyYearPage = response.read()
 		self.playerUrls = ([self.baseUrl + m.group(1)
 						   for m in
-<<<<<<< HEAD
 														 #<a href="/players/C/CousKi00.htm">Kirk Cousins</a>
-=======
->>>>>>> 8162855eae80c6a1195c93b64c625310f1b51b18
 						   itertools.islice(re.finditer(r'<a href="/(players/[A-Za-z]+/\w+.htm)">\w+ \w+</a>', fantasyYearPage), 
 						   numPlayers)]
 						  )
 
 		return self.playerUrls
-<<<<<<< HEAD
 	
 	def downloadPlayerPagesForYear(self, year):
 		"""Method to download players for a year
@@ -94,7 +85,6 @@ class ProFootballRefDownloader:
 		pattern = re.compile(r'<meta itemprop="name" content="(.*)">')
 		result = pattern.search(playerPage)
 		return result.group(1)
-=======
 
 	def getPlayerGamelogUrls(self, numYears=1, numPlayers=1):
 		""" Function that will loop through the player URLs stored
@@ -149,5 +139,4 @@ class ProFootballRefDownloader:
 		
 
 	
->>>>>>> 8162855eae80c6a1195c93b64c625310f1b51b18
 
