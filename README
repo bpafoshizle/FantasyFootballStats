@@ -12,3 +12,8 @@ The project will contain:
 6)Statistical packages for making predictions based on the data. Will possibly use rapid miner and R.
 
 Bots will enable the extraction of data to CSV and then the automation of league actions based on data analysis for automatic decision making.
+
+
+Dependencies:
+
+Beautiful Soup 4 (http://www.crummy.com/software/BeautifulSoup/bs4/doc/): pip install beautifulsoup4

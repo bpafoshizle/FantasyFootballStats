@@ -1,6 +1,6 @@
-from ProFootballRefDownloader import ProFootballRefDownloader
+from ProFootballRefBot import ProFootballRefBot
 
-bot = ProFootballRefDownloader()
+bot = ProFootballRefBot()
 
 #for url in bot.getYearUrlsFromYearsPage(5):
 #	print url
@@ -9,7 +9,8 @@ bot = ProFootballRefDownloader()
 #for url in bot.getFantasyPlayerUrlsByYear(numPlayers=50):
 #	print url
 
-bot.downloadPlayerPagesForYear('2013')
+#bot.downloadPlayerPagesForYear('2013')
+bot.downloadGamelogPagesForYear('2013')
 
 #playerUrls = bot.getPlayerGamelogUrls(numYears=2,numPlayers=1)
 #bot.getPlayerPagesAndExtractStats(playerUrls)
