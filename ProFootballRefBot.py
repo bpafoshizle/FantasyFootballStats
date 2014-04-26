@@ -11,6 +11,7 @@ except:
 import itertools
 import re	
 from bs4 import BeautifulSoup
+from bpaUtils import BpaUtils
 
 class ProFootballRefBot:
 	""" Class the represents a bot to manipulate the 
@@ -27,6 +28,7 @@ class ProFootballRefBot:
 		self.playerUrls = None
 		#self.playerGamelogUrls = None
 		self.numYears = None
+		self.bpaUtils = BpaUtils()
 
 
 	def getYearPage(self):
@@ -87,8 +89,7 @@ class ProFootballRefBot:
 			playerName = self.extractPlayerNameFromPlayerPage(playerPage)
 			filePath = './playerPages/' + playerName + '_' + year + '.html'
 			print('Writing: %s' % filePath)
-			with open(filePath, 'w') as f:
-				f.write(playerPage)
+			#self.bpaUtils.writeStringToTempFile('playerPage.html', playerPage)
 	
 	def downloadGamelogPagesForYear(self, year):
 		"""Method to download players gamelog pages
@@ -102,17 +103,17 @@ class ProFootballRefBot:
 				gameLogUrl = self.makeGameLogUrl(playerUrl)
 				print('Downloading: %s' % gameLogUrl)
 				response = urllib2.urlopen(gameLogUrl)
-				playerGamelogPagePage = response.read().decode('utf-8')
-				playerName = self.extractPlayerNameFromGameLogPage(playerGamelogPagePage)
-				filePath = './playerGameLogPages/' + playerName + '/_GameLog.html'
+				playerGamelogPage = response.read().decode('utf-8')
+				playerName = self.extractPlayerNameFromGameLogPage(playerGamelogPage)
+				filePath = './playerGameLogPages/' + playerName + '_GameLog.html'
 				print('Writing: %s' % filePath)
 				with open(filePath, 'w') as f:
-					f.write(playerPage)
+					f.write(playerGamelogPage)
 	
 	def makeGameLogUrl(self, playerUrl):
 		"""use http://www.pro-football-reference.com/players/F/FavrBr00.htm
 		to produce http://www.pro-football-reference.com/players/F/FavrBr00/gamelog//"""
-		return re.sub(r'\.htm', r'gamelog//', playerUrl)
+		return re.sub(r'\.htm', r'/gamelog//', playerUrl)
 	
 	def extractPlayerNameFromPlayerPage(self, playerPage):
 		"""Method to extract a player's name from the player page html
@@ -124,13 +125,13 @@ class ProFootballRefBot:
 		result = pattern.search(playerPage)
 		return result.group(1)
 		
-	def extractPlayerNameFromGameLogPage(self, playerGamelogPagePage):
+	def extractPlayerNameFromGameLogPage(self, playerGamelogPage):
 		"""Method to extract a player's name from the player page html
 		passed as a parameter."""
 		#<h1 class="float_left" style="vertical-align: middle;">Jamaal Charles</h1>
-		print playerPage
+		#self.bpaUtils.writeStringToTempFile('playerGamelogPage.html', playerGamelogPage)
 		pattern = re.compile(r'<h1 class="float_left" style="vertical-align: middle;">(.*)</h1>')
-		result = pattern.search(playerGamelogPagePage)
+		result = pattern.search(playerGamelogPage)
 		print(result.group(1))
 		return result.group(1)
 
