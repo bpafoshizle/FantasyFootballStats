@@ -1,5 +1,0 @@
-- Stats table is in the following structure for each gamelog page:
-	<table id="stats" class="sortable  stats_table row_summable" data-freeze="4">
-
-- xml.dom.minidom does not work well with HTML, and I am remembering now. I think I have used BeautifulSoup in the past
-	to handle parsing HTML DOM.

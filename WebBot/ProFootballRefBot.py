@@ -87,7 +87,7 @@ class ProFootballRefBot:
 			response = urllib2.urlopen(playerUrl)
 			playerPage = response.read().decode('utf-8')
 			playerName = self.extractPlayerNameFromPlayerPage(playerPage)
-			filePath = './playerPages/' + playerName + '_' + year + '.html'
+			filePath = './Data/Raw/ProFootballRef/playerPages/' + playerName + '_' + year + '.html'
 			print('Writing: %s' % filePath)
 			#self.bpaUtils.writeStringToTempFile('playerPage.html', playerPage)
 	
@@ -105,7 +105,7 @@ class ProFootballRefBot:
 				response = urllib2.urlopen(gameLogUrl)
 				playerGamelogPage = response.read().decode('utf-8')
 				playerName = self.extractPlayerNameFromGameLogPage(playerGamelogPage)
-				filePath = './playerGameLogPages/' + playerName + '_GameLog.html'
+				filePath = './Data/Raw/ProFootballRef/playerGameLogPages/' + playerName + '_GameLog.html'
 				print('Writing: %s' % filePath)
 				with open(filePath, 'w') as f:
 					f.write(playerGamelogPage)
@@ -140,7 +140,7 @@ class ProFootballRefBot:
 		tableList = soup.find_all("table", id="stats", limit=1)
 		print(tableList)
 
-
+###################################### DEPRECATED ######################################
 
 	def getPlayerGamelogUrls(self, numYears=1, numPlayers=1):
 		""" Function that will loop through the player URLs stored
