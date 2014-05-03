@@ -26,11 +26,26 @@ class ProFootballRefExtractor:
 			regSeasStatsTab, poStatsTab = self.getStatsTables(soup)	
 			regSeasStatsForm = self.getTabFormat(regSeasStatsTab)
 			poStatsForm = self.getTabFormat(poStatsTab)
-
-			print(regSeasStatsForm)
-			print(poStatsForm)
+			
+			regSeasonCleanStats = self.extractStatsRows(regSeasStatsTab)
+			poCleanStats = self.extractStatsRows(poStatsTab)
+			#print(regSeasStatsForm)
+			#print(regSeasonCleanStats)
+			#print(poStatsForm)
+			print(poCleanStats)
 
 	
+	def extractStatsRows(self, soup):
+		""" Method to extract all the stats rows from a valid
+		table from the PFR website by excluding header rows
+		embedded within the tables separating years"""
+		return soup.tbody.find_all(self.trNoThreadAttr)
+
+	def trNoThreadAttr(self, tag):
+		""" Method that returns true if a tag is a tr type and
+		contains an id attribute"""
+		return (tag.name == 'tr') and (tag.has_attr('id'))
+
 	def getStatsTables(self, soup):
 		regSeasStatsTab = soup.find('table', id='stats')
 		poStatsTab = soup.find('table', id='stats_playoffs')
@@ -40,4 +55,7 @@ class ProFootballRefExtractor:
 		return tab.thead.find_all('th', attrs={'data-stat': True})
 
 	def getHtmlFiles(self):
-		return [join(self.sourceGameLogDir, f) for f in listdir(self.sourceGameLogDir) if isfile(join(self.sourceGameLogDir, f))]
+		return [join(self.sourceGameLogDir, f) 
+				for f in listdir(self.sourceGameLogDir) 
+				if isfile(join(self.sourceGameLogDir, f))
+				and not f.startswith('.')]
