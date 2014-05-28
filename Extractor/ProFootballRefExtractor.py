@@ -1,6 +1,9 @@
 from bs4 import BeautifulSoup
 from os import listdir
 from os.path import isfile, join
+from bpaUtils import BpaUtils
+
+
 
 
 class ProFootballRefExtractor:
@@ -13,6 +16,7 @@ class ProFootballRefExtractor:
 		self.sourceDataDir = sourceDataDir
 		self.sourceGameLogDir = join(sourceDataDir, 'playerGameLogPages')
 		self.sourcePlayerDir = join(sourceDataDir, 'playerPages')
+		self.utils = BpaUtils()
 		
 	def extractPlayerData(self):
 		""" Method that will extract player data from player pages"""
@@ -30,21 +34,17 @@ class ProFootballRefExtractor:
 			regSeasonCleanStats = self.extractStatsRows(regSeasStatsTab)
 			poCleanStats = self.extractStatsRows(poStatsTab)
 			
-			self.writeSoupToFile("regSeasStatsForm", regSeasStatsForm)
-			self.writeSoupToFile("regSeasonCleanStats", regSeasonCleanStats)
-			self.writeSoupToFile("poStatsForm", poStatsForm)
-			self.writeSoupToFile("poCleanStats", poCleanStats)
+			#self.writeSoupToFile("tempFiles/regSeasStatsForm", regSeasStatsForm)
+			#self.writeSoupToFile("tempFiles/regSeasonCleanStats", regSeasonCleanStats)
+			#self.writeSoupToFile("tempFiles/poStatsForm", poStatsForm)
+			#self.writeSoupToFile("tempFiles/poCleanStats", poCleanStats)
+		
+			regSeasStatList = self.utils.bsResultSetToList(regSeasonCleanStats)
+			poStatList = self.utils.bsResultSetToList(poCleanStats)
 
-			
-	
-	def makeTab(self, form, stats):
-		""" Method that will take an extracted and cleaned html table 
-		and make a list (rows) of lists (columns)
-		"""
-		tab = []
-		row = []
-		
-		
+			print(poStatList)
+
+
 	def writeSoupToFile(self, name, soup):
 		""" Method to take some HTML block and write it to a file for 
 		easier viewing """
