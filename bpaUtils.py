@@ -27,17 +27,20 @@ class BpaUtils:
 		return result
 
 
-	def bsResultSetToList(self, resultSet):
+	def bsTrResultSetToList(self, resultSet):
 		""" Method to take a result set of table rows (tr)
 		from BeautifulSoup's findAll and turn them into a list of data.
 		"""
 		result = []
 		for tr in resultSet:
-			result.append([])
-			result[-1].append([self.parse_string(e) for e in tr.findAll('td')])
+			result.append([self.parse_string(e) for e in tr.findAll('td')])
 		return result
 
-
+	def bsThResultSetToList(self, resultSet):
+		""" Method to take a result set of table headers (th)
+		from BeautifulSoup's findAll and turn them into a list
+		of header data """
+		return [self.parse_string(e) for e in resultSet]
 
 
 	# Helper function to return concatenation of all character data in an element
