@@ -1,0 +1,6 @@
+Rk,Year,G#,Date,Age,Tm,,Opp,Result,Receiving_Rec,Receiving_Yds,Receiving_Y/R,Receiving_TD,Rushing_Att,Rushing_Yds,Rushing_Y/A,Rushing_TD,Punt Returns_Ret,Punt Returns_Yds,Punt Returns_Y/R,Punt Returns_TD
+1,2011,17,2012-01-08,24-299,DEN,,PIT,W 29-23,0,0,,0,1,9,9.00,0,0,0,,0
+2,2012,17,2013-01-12,25-303,DEN,,BAL,L 35-38,6,84,14.00,0,0,0,,0,0,0,,0
+3,2013,17,2014-01-12,26-303,DEN,,SDG,W 24-17,2,32,16.00,0,0,0,,0,3,66,22.00,0
+4,2013,18,2014-01-19,26-310,DEN,,NWE,W 26-16,5,73,14.60,0,0,0,,0,0,0,,0
+5,2013,19,2014-02-02,26-324,DEN,,SEA,L 8-43,1,6,6.00,0,0,0,,0,1,9,9.00,0

@@ -1,7 +1,8 @@
 from bs4 import BeautifulSoup
 from os import listdir
-from os.path import isfile, join
+from os.path import isfile, join, splitext, basename
 from bpaUtils import BpaUtils
+import csv
 
 class ProFootballRefExtractor:
 	""" Class to extract data from HTML files downloaded from 
@@ -9,19 +10,24 @@ class ProFootballRefExtractor:
 	CSV files, which can be used as clean data sources to load 
 	a database. """
 
-	def __init__(self, sourceDataDir='./Data/Raw/ProFootballRef/'):
+	def __init__(self, sourceDataDir='./Data/Raw/ProFootballRef/',
+				destDataDir='./Data/CSV/ProFootballRef/'):
 		self.sourceDataDir = sourceDataDir
+		self.destDataDir = destDataDir
 		self.sourceGameLogDir = join(sourceDataDir, 'playerGameLogPages')
 		self.sourcePlayerDir = join(sourceDataDir, 'playerPages')
 		self.utils = BpaUtils()
 		
 	def extractPlayerData(self):
 		""" Method that will extract player data from player pages"""
+		htmlFiles = self.getHtlmFiles(self.sourcePlayerDir)
+		for htmlFile in htmlFiles:
+			soup = BeautifulSoup(open(htmlFile))
 		
 	
 	def extractPlayerGameLogData(self):
 		""" Method to extract game log data from player game log pages""" 
-		htmlFiles = self.getHtmlFiles()
+		htmlFiles = self.getHtmlFiles(self.sourceGameLogDir)
 		for htmlFile in htmlFiles:
 			soup = BeautifulSoup(open(htmlFile))
 			
@@ -49,16 +55,33 @@ class ProFootballRefExtractor:
 			regSeasStatList.insert(0, regSeasStatsHeader)
 			poStatList.insert(0, poStatsHeader)
 
-			print(regSeasStatList)
+			#print(regSeasStatList)
 			#print(poStatsForm)
-			print(poStatList)
+			#print(poStatList)
+			self.writeListToFile(
+				join(self.destDataDir, splitext(basename(htmlFile))[0]) + '_reg', 
+				regSeasStatList
+			)
 
+			self.writeListToFile(
+				join(self.destDataDir, splitext(basename(htmlFile))[0]) + '_po', 
+				poStatList
+			)
+
+
+	def writeListToFile(self, name, plist):
+		""" Method to take some python list and write it to a file for
+		viewing or incorporation to another program"""
+		with open(name + ".txt", "w") as f:
+			writer = csv.writer(f)
+			writer.writerows(plist)
 
 	def writeSoupToFile(self, name, soup):
 		""" Method to take some HTML block and write it to a file for 
 		easier viewing """
 		f = open(name + ".txt", "w")
 		f.write(u'\n'.join(map(str, soup)))
+		f.close()
 		
 		
 	
@@ -121,12 +144,11 @@ class ProFootballRefExtractor:
 		#print(h)
 		return h
 		
-	def getHtmlFiles(self):
-		return [join(self.sourceGameLogDir, f) 
-				for f in listdir(self.sourceGameLogDir) 
-				if isfile(join(self.sourceGameLogDir, f))
+	def getHtmlFiles(self, source):
+		return [join(source, f) 
+				for f in listdir(source) 
+				if isfile(join(source, f))
 				and not f.startswith('.')]
-
 				
 	# Soup find_all mapping methods
 	def trNoThreadAttr(self, tag):

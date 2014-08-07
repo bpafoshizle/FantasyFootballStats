@@ -1,0 +1,3 @@
+Rk,Year,G#,Date,Age,Tm,,Opp,Result,Rushing_Att,Rushing_Yds,Rushing_Y/A,Rushing_TD,Receiving_Rec,Receiving_Yds,Receiving_Y/R,Receiving_TD,Passing_Cmp,Passing_Att,Passing_Cmp%,Passing_Yds,Passing_TD,Passing_Int,Passing_Rate,Passing_Y/A,Passing_AY/A
+1,2010,17,2011-01-16,25-037,CHI,,SEA,W 35-24,25,80,3.20,0,3,54,18.00,0,0,1,0.00%,0,0,1,0.0,0.00,-45.00
+2,2010,18,2011-01-23,25-044,CHI,,GNB,L 14-21,17,70,4.12,0,10,90,9.00,0,0,0,,0,0,0,,,
